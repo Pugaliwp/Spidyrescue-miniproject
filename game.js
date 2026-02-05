@@ -1,4 +1,4 @@
-const canvas = document.getElementById('gameCanvas');;
+const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.matchMedia("(pointer: coarse)").matches);
