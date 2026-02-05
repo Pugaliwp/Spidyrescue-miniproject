@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Supabase Connection Test</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background: #222;
+            color: #fff;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            background: #2f855a;
+        }
+
+        .error {
+            background: #c53030;
+        }
+
+        .info {
+            background: #2b6cb0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Supabase Connection Test</h1>
+    <div id="output">Initializing...</div>
+
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase_client.js"></script>
+    <script src="leaderboard_manager.js"></script>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = msg;
+            output.appendChild(div);
+        }
+
+        async function testConnection() {
+            log('Testing connection to Supabase...', 'info');
+
+            if (typeof supabase === 'undefined') {
+                log('CRITICAL: Supabase library not loaded!', 'error');
+                return;
+            }
+            if (typeof db === 'undefined') {
+                log('CRITICAL: db client not initialized in supabase_client.js', 'error');
+                return;
+            }
+
+            try {
+                // Try to fetch 1 row
+                const { data, error } = await db
+                    .from('leaderboard')
+                    .select('count', { count: 'exact', head: true });
+
+                if (error) {
+                    log(`Connection Failed: ${error.message} (Code: ${error.code})`, 'error');
+                    if (error.code === '42P01') {
+                        log('Hint: The table "leaderboard" does not exist. Did you run the SQL query?', 'info');
+                    }
+                } else {
+                    log('SUCCESS: Connected to Supabase and found "leaderboard" table.', 'success');
+
+                    // Try Data Fetch
+                    const scores = await fetchLeaderboard();
+                    log(`Fetched ${scores ? scores.length : 0} scores from leaderboard.`, 'success');
+                }
+
+            } catch (e) {
+                log(`Unexpected Error: ${e.message}`, 'error');
+            }
+        }
+
+        // Run test
+        setTimeout(testConnection, 500);
+    </script>
+</body>
+
+</html>
