@@ -57,7 +57,7 @@ async function checkUserExists(playerName) {
 }
 
 async function submitScore(playerName, scoreVal) {
-    if (!isDbReady()) return false;
+    if (!isDbReady()) return { success: false, error: new Error('DB not ready') };
     if (!playerName) playerName = "Anonymous";
 
     try {
@@ -69,7 +69,7 @@ async function submitScore(playerName, scoreVal) {
 
         if (fetchError && fetchError.code !== 'PGRST116') {
             console.error('Error checking existing score:', fetchError);
-            return false;
+            return { success: false, error: fetchError };
         }
 
         let shouldUpdate = false;
